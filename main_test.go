@@ -42,29 +42,30 @@ func Test_path_distance(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		points []point
+		points []*point
 		want   float64
 	}{
 		{
-			points: []point{},
+			points: []*point{},
 			want:   0,
 		},
 		{
-			points: []point{
-				point{0, 0, 0},
+			points: []*point{
+				newPoint(0, 0, 0),
 			},
 			want: 0,
 		},
 		{
-			points: []point{
-				point{0, 0, 0},
-				point{0, 1, 0},
-				point{0, 1, 1},
-				point{0, 4, 5},
+			points: []*point{
+				newPoint(0, 0, 0),
+				newPoint(0, 1, 0),
+				newPoint(0, 1, 1),
+				newPoint(0, 4, 5),
 			},
 			want: 7,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &path{

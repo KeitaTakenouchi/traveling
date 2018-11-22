@@ -25,16 +25,16 @@ func dist(a, b point) float64 {
 }
 
 type path struct {
-	points []point
+	points []*point
 }
 
 func newPath() *path {
 	return &path{
-		points: make([]point, 0),
+		points: make([]*point, 0),
 	}
 }
 
-func (p *path) addPoint(pt point) {
+func (p *path) addPoint(pt *point) {
 	p.points = append(p.points, pt)
 }
 
@@ -44,22 +44,40 @@ func (p *path) count() int {
 
 func (p *path) distance() float64 {
 	sum := 0.0
-	for i, currentPoint := range p.points {
+	for i := 0; i < len(p.points); i++ {
 		if i == len(p.points)-1 {
 			break
 		}
+		currPoint := p.points[i]
 		nextPoint := p.points[i+1]
-		sum = sum + dist(currentPoint, nextPoint)
+
+		d := dist(*currPoint, *nextPoint)
+		if (i+1)%10 == 0 && !isPrime(currPoint.id) {
+			d = d * 1.10
+		}
+		sum = sum + d
 	}
 	return sum
 }
 
+func isPrime(n int) bool {
+	for i := 1; i < int(math.Floor(math.Sqrt(float64(n)))); i++ {
+		if n%i == 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func main() {
-	//file, _ := os.Open("./cities.csv")
-	file, _ := os.Open("./top100.csv")
+	file, err := os.Open("./cities.csv")
+	//file, err := os.Open("./small.csv")
+	if err != nil {
+		panic("fine not found.")
+	}
 	reader := csv.NewReader(bufio.NewReader(file))
 
-	points := make([]*point, 0)
+	path := newPath()
 	for i := 0; ; i++ {
 		line, err := reader.Read()
 		if err == io.EOF {
@@ -70,11 +88,11 @@ func main() {
 		if e1 != nil || e2 != nil {
 			continue
 		}
-		points = append(points, newPoint(i, x, y))
+		pt := newPoint(i, x, y)
+		path.addPoint(pt)
 	}
 
-	for _, p := range points {
-		fmt.Println(p)
-	}
+	dist := path.distance()
+	fmt.Println("dist :", dist)
 
 }
