@@ -24,8 +24,39 @@ func dist(a, b point) float64 {
 	return math.Sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y))
 }
 
+type path struct {
+	points []point
+}
+
+func newPath() *path {
+	return &path{
+		points: make([]point, 0),
+	}
+}
+
+func (p *path) addPoint(pt point) {
+	p.points = append(p.points, pt)
+}
+
+func (p *path) count() int {
+	return len(p.points)
+}
+
+func (p *path) distance() float64 {
+	sum := 0.0
+	for i, currentPoint := range p.points {
+		if i == len(p.points)-1 {
+			break
+		}
+		nextPoint := p.points[i+1]
+		sum = sum + dist(currentPoint, nextPoint)
+	}
+	return sum
+}
+
 func main() {
-	file, _ := os.Open("./cities.csv")
+	//file, _ := os.Open("./cities.csv")
+	file, _ := os.Open("./top100.csv")
 	reader := csv.NewReader(bufio.NewReader(file))
 
 	points := make([]*point, 0)
