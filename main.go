@@ -44,12 +44,10 @@ func (p *path) count() int {
 
 func (p *path) distance() float64 {
 	sum := 0.0
-	for i := 0; i < len(p.points); i++ {
-		if i == len(p.points)-1 {
-			break
-		}
+	totalCount := len(p.points)
+	for i := 0; i < totalCount; i++ {
 		currPoint := p.points[i]
-		nextPoint := p.points[i+1]
+		nextPoint := p.points[(i+1)%totalCount]
 
 		d := dist(*currPoint, *nextPoint)
 		if (i+1)%10 == 0 && !isPrime(currPoint.id) {
@@ -61,7 +59,8 @@ func (p *path) distance() float64 {
 }
 
 func isPrime(n int) bool {
-	for i := 1; i < int(math.Floor(math.Sqrt(float64(n)))); i++ {
+	limit := math.Floor(math.Sqrt(float64(n)))
+	for i := 2; i < int(limit); i++ {
 		if n%i == 0 {
 			return false
 		}
@@ -93,6 +92,6 @@ func main() {
 	}
 
 	dist := path.distance()
-	fmt.Println("dist :", dist)
+	fmt.Printf("dist %f", dist)
 
 }

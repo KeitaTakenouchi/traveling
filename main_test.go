@@ -58,11 +58,11 @@ func Test_path_distance(t *testing.T) {
 		{
 			points: []*point{
 				newPoint(0, 0, 0),
-				newPoint(0, 1, 0),
-				newPoint(0, 1, 1),
-				newPoint(0, 4, 5),
+				newPoint(1, 1, 0),
+				newPoint(2, 1, 1),
+				newPoint(3, 0, 1),
 			},
-			want: 7,
+			want: 4,
 		},
 	}
 
@@ -73,6 +73,28 @@ func Test_path_distance(t *testing.T) {
 			}
 			if got := p.distance(); got != tt.want {
 				t.Errorf("path.distance() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_isPrime(t *testing.T) {
+	tests := []struct {
+		name string
+		n    int
+		want bool
+	}{
+		{n: 1, want: true},
+		{n: 5, want: true},
+		{n: 12, want: false},
+		{n: 17, want: true},
+		{n: 19, want: true},
+		{n: 123, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isPrime(tt.n); got != tt.want {
+				t.Errorf("isPrime() = %v, want %v", got, tt.want)
 			}
 		})
 	}
