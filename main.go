@@ -121,8 +121,8 @@ func isPrime(n int) bool {
 }
 
 func main() {
-	rfile, err := os.Open("./cities.csv")
-	//rfile, err := os.Open("./small.csv")
+	//rfile, err := os.Open("data/cities.csv")
+	rfile, err := os.Open("data/small.csv")
 	defer rfile.Close()
 	if err != nil {
 		panic("fine not found.")
@@ -150,10 +150,10 @@ func main() {
 	// calculate a path.
 	path := nearestNextAlgorithm(pool)
 	dist := path.distance()
-	fmt.Printf("dist %f", dist)
+	fmt.Printf("dist %f\n", dist)
 
 	// write the result as csv.
-	wfile, err := os.Create("./result.csv")
+	wfile, err := os.Create("data/result.csv")
 	defer wfile.Close()
 
 	buf := bufio.NewWriter(wfile)
