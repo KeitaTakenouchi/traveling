@@ -24,6 +24,14 @@ func dist(a, b point) float64 {
 	return math.Sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y))
 }
 
+func distBiased(from, to point, step int) float64 {
+	d := math.Sqrt((from.x-to.x)*(from.x-to.x) + (from.y-to.y)*(from.y-to.y))
+	if (step)%10 == 0 && !isPrime(from.id) {
+		d = d * 1.1
+	}
+	return d
+}
+
 type path struct {
 	points []*point
 }
@@ -48,12 +56,7 @@ func (p *path) distance() float64 {
 	for i := 0; i < totalCount; i++ {
 		currPoint := p.points[i]
 		nextPoint := p.points[(i+1)%totalCount]
-
-		d := dist(*currPoint, *nextPoint)
-		if (i+1)%10 == 0 && !isPrime(currPoint.id) {
-			d = d * 1.10
-		}
-		sum = sum + d
+		sum = sum + distBiased(*currPoint, *nextPoint, i+1)
 	}
 	return sum
 }
@@ -120,6 +123,22 @@ func isPrime(n int) bool {
 	return true
 }
 
+func nearestNextAlgorithm(pool pointPool) *path {
+	path := newPath()
+
+	currentPoint := pool.removeAt(0)
+	path.addPoint(currentPoint)
+	step := 1
+	for !pool.isEmpty() {
+		nextPt := pool.nearest(currentPoint)
+		pool.removeById(nextPt.id)
+		path.addPoint(nextPt)
+		currentPoint = nextPt
+		step++
+	}
+	return path
+}
+
 func main() {
 	//rfile, err := os.Open("data/cities.csv")
 	rfile, err := os.Open("data/small.csv")
@@ -168,18 +187,4 @@ func main() {
 	buf.WriteString(line)
 
 	buf.Flush()
-}
-
-func nearestNextAlgorithm(pool pointPool) *path {
-	path := newPath()
-
-	currentPoint := pool.removeAt(0)
-	path.addPoint(currentPoint)
-	for !pool.isEmpty() {
-		nextPt := pool.nearest(currentPoint)
-		pool.removeById(nextPt.id)
-		path.addPoint(nextPt)
-		currentPoint = nextPt
-	}
-	return path
 }
