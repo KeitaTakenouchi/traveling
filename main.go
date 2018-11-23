@@ -128,13 +128,11 @@ func nearestNextAlgorithm(pool pointPool) *path {
 
 	currentPoint := pool.removeAt(0)
 	path.addPoint(currentPoint)
-	step := 1
 	for !pool.isEmpty() {
 		nextPt := pool.nearest(currentPoint)
 		pool.removeById(nextPt.id)
 		path.addPoint(nextPt)
 		currentPoint = nextPt
-		step++
 	}
 	return path
 }
