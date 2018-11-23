@@ -151,8 +151,8 @@ func nearestNextAlgorithm(pool pointPool) *path {
 }
 
 func main() {
-	//rfile, err := os.Open("data/cities.csv")
-	rfile, err := os.Open("data/small.csv")
+	rfile, err := os.Open("data/cities.csv")
+	//rfile, err := os.Open("data/small.csv")
 	defer rfile.Close()
 	if err != nil {
 		panic("fine not found.")
@@ -205,7 +205,7 @@ func main() {
 			maxY = pt.y
 		}
 	}
-	width, height := maxX*1.01, maxY*1.01
+	width, height := maxX, maxY
 	ctx := gg.NewContext(int(width), int(height))
 	ctx.InvertY()
 	ctx.DrawRectangle(0, 0, width, height)
