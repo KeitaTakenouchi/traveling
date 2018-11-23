@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
+	//"github.com/fogleman/delaunay"
+	"github.com/fogleman/gg"
 	"io"
 	"math"
 	"os"
@@ -124,6 +126,9 @@ func isPrime(n int) bool {
 }
 
 func nearestNextAlgorithm(pool pointPool) *path {
+	totalCount := pool.size()
+	ratio := 0.0
+
 	path := newPath()
 
 	currentPoint := pool.removeAt(0)
@@ -133,7 +138,15 @@ func nearestNextAlgorithm(pool pointPool) *path {
 		pool.removeById(nextPt.id)
 		path.addPoint(nextPt)
 		currentPoint = nextPt
+
+		// printing info
+		r := math.Floor(float64(pool.size()) / float64(totalCount) * 100)
+		if ratio != r {
+			ratio = r
+			fmt.Printf("*")
+		}
 	}
+	fmt.Println()
 	return path
 }
 
@@ -174,15 +187,43 @@ func main() {
 	defer wfile.Close()
 
 	buf := bufio.NewWriter(wfile)
-	buf.WriteString("Path, X, Y\n")
+	buf.WriteString("Path\n")
 	for _, pt := range path.points {
-		line := fmt.Sprintf("%d, %f, %f\n", pt.id, pt.x, pt.y)
+		line := fmt.Sprintf("%d\n", pt.id)
 		buf.WriteString(line)
 	}
-
-	start := path.points[0]
-	line := fmt.Sprintf("%d, %f, %f\n", start.id, start.x, start.y)
-	buf.WriteString(line)
-
+	buf.WriteString("0\n")
 	buf.Flush()
+
+	// output png file.
+	maxX, maxY := 0.0, 0.0
+	for _, pt := range path.points {
+		if pt.x > maxX {
+			maxX = pt.x
+		}
+		if pt.y > maxY {
+			maxY = pt.y
+		}
+	}
+	width, height := maxX*1.01, maxY*1.01
+	ctx := gg.NewContext(int(width), int(height))
+	ctx.InvertY()
+	ctx.DrawRectangle(0, 0, width, height)
+	ctx.SetRGB(1, 1, 1)
+	ctx.Fill()
+
+	ctx.SetRGB(0.3, 0.3, 0.3)
+	for _, pt := range path.points {
+		ctx.DrawPoint(pt.x, pt.y, 2)
+	}
+	ctx.Fill()
+	ctx.SetRGB(1, 0, 0)
+	for _, pt := range path.points {
+		ctx.LineTo(pt.x, pt.y)
+	}
+	ctx.SetLineWidth(2)
+	ctx.Stroke()
+
+	ctx.SavePNG("data/img/out.png")
+
 }
