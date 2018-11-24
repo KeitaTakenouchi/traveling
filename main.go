@@ -201,6 +201,55 @@ func exportTriangulation(triangulation *delaunay.Triangulation) {
 	ctx.SavePNG("data/img/out.png")
 }
 
+func exportPath(path *path) {
+	maxX, maxY := 0.0, 0.0
+	for _, pt := range path.points {
+		if pt.x > maxX {
+			maxX = pt.x
+		}
+		if pt.y > maxY {
+			maxY = pt.y
+		}
+	}
+	width, height := maxX, maxY
+	ctx := gg.NewContext(int(width), int(height))
+	ctx.InvertY()
+	ctx.DrawRectangle(0, 0, width, height)
+	ctx.SetRGB(1, 1, 1)
+	ctx.Fill()
+
+	ctx.SetRGB(0.3, 0.3, 0.3)
+	for _, pt := range path.points {
+		ctx.DrawPoint(pt.x, pt.y, 2)
+	}
+	ctx.Fill()
+	ctx.SetRGB(1, 0, 0)
+	for _, pt := range path.points {
+		ctx.LineTo(pt.x, pt.y)
+	}
+	ctx.SetLineWidth(2)
+	ctx.Stroke()
+
+	ctx.SavePNG("data/img/path.png")
+}
+
+func writePathToFile(path *path) {
+	wfile, err := os.Create("data/result.csv")
+	defer wfile.Close()
+	if err != nil {
+		panic("file creation err.")
+	}
+
+	buf := bufio.NewWriter(wfile)
+	buf.WriteString("Path\n")
+	for _, pt := range path.points {
+		line := fmt.Sprintf("%d\n", pt.id)
+		buf.WriteString(line)
+	}
+	buf.WriteString("0\n")
+	buf.Flush()
+}
+
 func main() {
 	rfile, err := os.Open("data/cities.csv")
 	//rfile, err := os.Open("data/small.csv")
@@ -239,48 +288,6 @@ func main() {
 	dist := path.distance()
 	fmt.Printf("dist %f\n", dist)
 
-	// write the result as csv.
-	wfile, err := os.Create("data/result.csv")
-	defer wfile.Close()
-
-	buf := bufio.NewWriter(wfile)
-	buf.WriteString("Path\n")
-	for _, pt := range path.points {
-		line := fmt.Sprintf("%d\n", pt.id)
-		buf.WriteString(line)
-	}
-	buf.WriteString("0\n")
-	buf.Flush()
-
-	// output png file.
-	maxX, maxY := 0.0, 0.0
-	for _, pt := range path.points {
-		if pt.x > maxX {
-			maxX = pt.x
-		}
-		if pt.y > maxY {
-			maxY = pt.y
-		}
-	}
-	width, height := maxX, maxY
-	ctx := gg.NewContext(int(width), int(height))
-	ctx.InvertY()
-	ctx.DrawRectangle(0, 0, width, height)
-	ctx.SetRGB(1, 1, 1)
-	ctx.Fill()
-
-	ctx.SetRGB(0.3, 0.3, 0.3)
-	for _, pt := range path.points {
-		ctx.DrawPoint(pt.x, pt.y, 2)
-	}
-	ctx.Fill()
-	ctx.SetRGB(1, 0, 0)
-	for _, pt := range path.points {
-		ctx.LineTo(pt.x, pt.y)
-	}
-	ctx.SetLineWidth(2)
-	ctx.Stroke()
-
-	ctx.SavePNG("data/img/out.png")
-
+	writePathToFile(path)
+	exportPath(path)
 }
