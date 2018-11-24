@@ -364,8 +364,8 @@ func exportSpanningTree(spanningTreeEdges []*edge) {
 }
 
 func main() {
-	rfile, err := os.Open("data/cities.csv")
-	//rfile, err := os.Open("data/small.csv")
+	//rfile, err := os.Open("data/cities.csv")
+	rfile, err := os.Open("data/small.csv")
 	defer rfile.Close()
 	if err != nil {
 		panic("fine not found.")
@@ -399,6 +399,6 @@ func main() {
 	dist := path.distance()
 	fmt.Printf("dist %f\n", dist)
 
-	writePathToFile(path)
-	exportPath(path)
+	//writePathToFile(path)
+	//exportPath(path)
 }
