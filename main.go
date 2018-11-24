@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	//"github.com/fogleman/delaunay"
+	"github.com/fogleman/delaunay"
 	"github.com/fogleman/gg"
 	"io"
 	"math"
@@ -150,6 +150,57 @@ func nearestNextAlgorithm(pool pointPool) *path {
 	return path
 }
 
+func nextHalfEdge(e int) int {
+	if e%3 == 2 {
+		return e - 2
+	}
+	return e + 1
+}
+
+func triangulate(pool pointPool) (*delaunay.Triangulation, error) {
+	points := make([]delaunay.Point, 0)
+	for _, pt := range pool.points {
+		p := delaunay.Point{
+			X: pt.x,
+			Y: pt.y,
+		}
+		points = append(points, p)
+	}
+	return delaunay.Triangulate(points)
+}
+
+func exportTriangulation(triangulation *delaunay.Triangulation) {
+	maxX, maxY := 0.0, 0.0
+	for _, pt := range triangulation.Points {
+		if pt.X > maxX {
+			maxX = pt.X
+		}
+		if pt.Y > maxY {
+			maxY = pt.Y
+		}
+	}
+
+	ctx := gg.NewContext(int(maxX), int(maxY))
+	ctx.InvertY()
+	ctx.DrawRectangle(0, 0, maxX, maxY)
+	ctx.SetRGB(1, 1, 1)
+	ctx.Fill()
+
+	ts := triangulation.Triangles
+	hs := triangulation.Halfedges
+	for i, h := range hs {
+		if i > h {
+			p := triangulation.Points[ts[i]]
+			q := triangulation.Points[ts[nextHalfEdge(i)]]
+			ctx.DrawLine(p.X, p.Y, q.X, q.Y)
+		}
+	}
+	ctx.SetRGB(0, 0, 0)
+	ctx.Stroke()
+
+	ctx.SavePNG("data/img/out.png")
+}
+
 func main() {
 	rfile, err := os.Open("data/cities.csv")
 	//rfile, err := os.Open("data/small.csv")
@@ -176,6 +227,12 @@ func main() {
 		pt := newPoint(id, x, y)
 		pool.addPoint(pt)
 	}
+
+	triangulate, err := triangulate(pool)
+	if err != nil {
+		panic("triangulate err.")
+	}
+	exportTriangulation(triangulate)
 
 	// calculate a path.
 	path := nearestNextAlgorithm(pool)
