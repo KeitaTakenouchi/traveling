@@ -68,6 +68,12 @@ type pointPool struct {
 	points []*point
 }
 
+func newPointPool() pointPool {
+	return pointPool{
+		points: make([]*point, 0),
+	}
+}
+
 func (pp *pointPool) addPoint(pt *point) {
 	pp.points = append(pp.points, pt)
 }
@@ -108,12 +114,6 @@ func (pp *pointPool) nearest(target *point) *point {
 		}
 	}
 	return nearestPt
-}
-
-func newPointPool() pointPool {
-	return pointPool{
-		points: make([]*point, 0),
-	}
 }
 
 type edge struct {
