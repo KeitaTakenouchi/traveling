@@ -9,6 +9,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -115,6 +116,22 @@ func newPointPool() pointPool {
 	}
 }
 
+type edge struct {
+	fst *point
+	snd *point
+}
+
+func newEdge(fst, snd *point) *edge {
+	return &edge{
+		fst: fst,
+		snd: snd,
+	}
+}
+
+func (e *edge) distance() float64 {
+	return dist(*e.fst, *e.snd)
+}
+
 func isPrime(n int) bool {
 	limit := math.Floor(math.Sqrt(float64(n)))
 	for i := 2; i < int(limit); i++ {
@@ -198,7 +215,7 @@ func exportTriangulation(triangulation *delaunay.Triangulation) {
 	ctx.SetRGB(0, 0, 0)
 	ctx.Stroke()
 
-	ctx.SavePNG("data/img/out.png")
+	ctx.SavePNG("data/img/triangle.png")
 }
 
 func exportPath(path *path) {
@@ -250,6 +267,102 @@ func writePathToFile(path *path) {
 	buf.Flush()
 }
 
+func spanningTree(pool pointPool) []*edge {
+	fmt.Println("start triangulation.")
+	triangulation, err := triangulate(pool)
+	if err != nil {
+		panic("triangulation err.")
+	}
+	//exportTriangulation(triangulation)
+
+	// load edges from the triangulation result.
+	edges := make([]*edge, 0)
+	for i, h := range triangulation.Halfedges {
+		if i > h {
+			p := pool.points[triangulation.Triangles[i]]
+			q := pool.points[triangulation.Triangles[nextHalfEdge(i)]]
+			edge := newEdge(p, q)
+			edges = append(edges, edge)
+		}
+	}
+	sort.Slice(edges, func(i, j int) bool {
+		return edges[i].distance() < edges[j].distance()
+	})
+
+	fmt.Println("start spanning.")
+	id2gruupId := make([]int, len(pool.points))
+
+	// init each group ids.
+	for i := range id2gruupId {
+		id2gruupId[i] = i
+	}
+
+	spanningTreeEdges := make([]*edge, 0)
+	for _, edge := range edges {
+		id1, id2 := edge.fst.id, edge.snd.id
+
+		// skip if both belong to the same group.
+		if id2gruupId[id1] == id2gruupId[id2] {
+			continue
+		}
+
+		minGroupId, maxGroupId := -1, -1
+		if id2gruupId[id1] < id2gruupId[id2] {
+			minGroupId = id2gruupId[id1]
+			maxGroupId = id2gruupId[id2]
+		} else {
+			minGroupId = id2gruupId[id2]
+			maxGroupId = id2gruupId[id1]
+		}
+		if minGroupId < 0 || maxGroupId < 0 {
+			panic("no min/max group ids.")
+		}
+
+		for i, groupid := range id2gruupId {
+			if groupid == maxGroupId {
+				id2gruupId[i] = minGroupId
+			}
+		}
+		spanningTreeEdges = append(spanningTreeEdges, edge)
+	}
+
+	return spanningTreeEdges
+}
+
+func exportSpanningTree(spanningTreeEdges []*edge) {
+	points := make([]*point, 0)
+	for _, edge := range spanningTreeEdges {
+		points = append(points, edge.fst)
+		points = append(points, edge.snd)
+	}
+
+	maxX, maxY := 0.0, 0.0
+	for _, pt := range points {
+		if pt.x > maxX {
+			maxX = pt.x
+		}
+		if pt.y > maxY {
+			maxY = pt.y
+		}
+	}
+
+	ctx := gg.NewContext(int(maxX), int(maxY))
+	ctx.InvertY()
+	ctx.DrawRectangle(0, 0, maxX, maxY)
+	ctx.SetRGB(1, 1, 1)
+	ctx.Fill()
+
+	for _, edge := range spanningTreeEdges {
+		p := edge.fst
+		q := edge.snd
+		ctx.DrawLine(p.x, p.y, q.x, q.y)
+	}
+	ctx.SetRGB(0, 0, 0)
+	ctx.Stroke()
+
+	ctx.SavePNG("data/img/spannning.png")
+}
+
 func main() {
 	rfile, err := os.Open("data/cities.csv")
 	//rfile, err := os.Open("data/small.csv")
@@ -277,11 +390,9 @@ func main() {
 		pool.addPoint(pt)
 	}
 
-	triangulate, err := triangulate(pool)
-	if err != nil {
-		panic("triangulate err.")
-	}
-	exportTriangulation(triangulate)
+	tree := spanningTree(pool)
+	exportSpanningTree(tree)
+	fmt.Println("done spanning.")
 
 	// calculate a path.
 	path := nearestNextAlgorithm(pool)
