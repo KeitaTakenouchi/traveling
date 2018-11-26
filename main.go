@@ -186,7 +186,7 @@ func triangulate(pool pointPool) (*delaunay.Triangulation, error) {
 	return delaunay.Triangulate(points)
 }
 
-func exportTriangulation(triangulation *delaunay.Triangulation) {
+func exportTriangulationPNG(triangulation *delaunay.Triangulation) {
 	maxX, maxY := 0.0, 0.0
 	for _, pt := range triangulation.Points {
 		if pt.X > maxX {
@@ -218,7 +218,7 @@ func exportTriangulation(triangulation *delaunay.Triangulation) {
 	ctx.SavePNG("data/img/triangle.png")
 }
 
-func exportPath(path *path) {
+func exportPathPNG(path *path) {
 	maxX, maxY := 0.0, 0.0
 	for _, pt := range path.points {
 		if pt.x > maxX {
@@ -273,7 +273,7 @@ func spanningTree(pool pointPool) []*edge {
 	if err != nil {
 		panic("triangulation err.")
 	}
-	//exportTriangulation(triangulation)
+	//exportTriangulationPNG(triangulation)
 
 	// load edges from the triangulation result.
 	edges := make([]*edge, 0)
@@ -329,7 +329,7 @@ func spanningTree(pool pointPool) []*edge {
 	return spanningTreeEdges
 }
 
-func exportSpanningTree(spanningTreeEdges []*edge) {
+func exportSpanningTreePNG(spanningTreeEdges []*edge) {
 	points := make([]*point, 0)
 	for _, edge := range spanningTreeEdges {
 		points = append(points, edge.fst)
@@ -391,7 +391,7 @@ func main() {
 	}
 
 	tree := spanningTree(pool)
-	exportSpanningTree(tree)
+	exportSpanningTreePNG(tree)
 	fmt.Println("done spanning.")
 
 	// calculate a path.
@@ -400,5 +400,5 @@ func main() {
 	fmt.Printf("dist %f\n", dist)
 
 	//writePathToFile(path)
-	//exportPath(path)
+	//exportPathPNG(path)
 }
