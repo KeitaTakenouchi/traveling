@@ -37,12 +37,17 @@ func distBiased(from, to point, step int) float64 {
 
 type path struct {
 	points []*point
+	start  *point
 }
 
 func newPath() *path {
 	return &path{
 		points: make([]*point, 0),
 	}
+}
+
+func (p *path) setStart(pt *point) {
+	p.start = pt
 }
 
 func (p *path) addPoint(pt *point) {
@@ -66,12 +71,18 @@ func (p *path) distance() float64 {
 
 type pointPool struct {
 	points []*point
+	start  *point
 }
 
 func newPointPool() pointPool {
 	return pointPool{
 		points: make([]*point, 0),
+		start:  nil,
 	}
+}
+
+func (pp *pointPool) setStart(pt *point) {
+	pp.start = pt
 }
 
 func (pp *pointPool) addPoint(pt *point) {
@@ -140,6 +151,83 @@ func isPrime(n int) bool {
 		}
 	}
 	return true
+}
+
+// Algorithm using minimun spannning tree and creatint a tour on it.
+func spannningTreeTourAlgorithm(pool pointPool, edges []*edge) *path {
+	graph := make(map[*point][]*point)
+	for _, pt := range pool.points {
+		connected := make([]*point, 0)
+		for _, edge := range edges {
+			if pt == edge.fst {
+				connected = append(connected, edge.snd)
+			} else if pt == edge.snd {
+				connected = append(connected, edge.fst)
+			}
+		}
+		// sort connected points by their angle.
+		sort.Slice(connected, func(i, j int) bool {
+			a := connected[i]
+			b := connected[j]
+			return math.Atan2(a.y, a.x) < math.Atan2(b.y, b.x)
+		})
+		graph[pt] = connected
+		/*
+			// dump
+			fmt.Print(pt.id, " : ")
+			for _, c := range connected {
+				fmt.Print(c.id, ", ")
+			}
+			fmt.Println()
+		*/
+	}
+	tour := make([]*point, 0)
+
+	startPt := pool.start
+	tour = append(tour, startPt)
+	nextOfStartPt := nextPoint(nil, startPt, graph)
+
+	currentPt := nextOfStartPt
+	nextPt := nextPoint(startPt, currentPt, graph)
+	for !(currentPt == startPt && nextPt == nextOfStartPt) {
+		fmt.Println(currentPt.id, " -> ", nextPt.id)
+
+		tour = append(tour, currentPt)
+		tmp := nextPt
+		nextPt = nextPoint(currentPt, nextPt, graph)
+		currentPt = tmp
+	}
+
+	path := newPath()
+	path.setStart(pool.start)
+	for _, pt := range tour {
+		exist := false
+		for _, added := range path.points {
+			if pt == added {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			path.addPoint(pt)
+		}
+	}
+	return path
+}
+
+func nextPoint(previous, current *point, graph map[*point][]*point) *point {
+	connected := graph[current]
+	prevIndex := -1
+	for i, pt := range connected {
+		if pt == previous {
+			prevIndex = i
+			break
+		}
+	}
+	if previous != nil && prevIndex < 0 {
+		panic("index error.")
+	}
+	return connected[(prevIndex+1)%len(connected)]
 }
 
 func nearestNextAlgorithm(pool pointPool) *path {
@@ -244,6 +332,7 @@ func exportPathPNG(path *path) {
 	for _, pt := range path.points {
 		ctx.LineTo(pt.x, pt.y)
 	}
+	ctx.LineTo(path.start.x, path.start.y)
 	ctx.SetLineWidth(2)
 	ctx.Stroke()
 
@@ -388,17 +477,21 @@ func main() {
 		}
 		pt := newPoint(id, x, y)
 		pool.addPoint(pt)
+		if pt.id == 0 {
+			pool.setStart(pt)
+		}
 	}
+
+	// calculate a path.
+	//path := nearestNextAlgorithm(pool)
 
 	edges := spanningTree(pool)
 	exportSpanningTreePNG(edges)
 	fmt.Println("done spanning.")
-
-	// calculate a path.
-	path := nearestNextAlgorithm(pool)
+	path := spannningTreeTourAlgorithm(pool, edges)
 	dist := path.distance()
 	fmt.Printf("dist %f\n", dist)
-
-	//writePathToFile(path)
-	//exportPathPNG(path)
+	
+	writePathToFile(path)
+	exportPathPNG(path)
 }
