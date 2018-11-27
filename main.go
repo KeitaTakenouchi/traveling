@@ -390,8 +390,8 @@ func main() {
 		pool.addPoint(pt)
 	}
 
-	tree := spanningTree(pool)
-	exportSpanningTreePNG(tree)
+	edges := spanningTree(pool)
+	exportSpanningTreePNG(edges)
 	fmt.Println("done spanning.")
 
 	// calculate a path.
