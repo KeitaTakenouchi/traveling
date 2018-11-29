@@ -480,11 +480,8 @@ func twoOptAlgorithm(path *path) {
 			}
 		}
 		loop++
-		if loop%20 == 0 {
-			fmt.Println("+")
-		} else {
-			fmt.Print("+")
-		}
+		fmt.Printf("dist %f\n", path.distance())
+		writePathToFile(path)
 	}
 	fmt.Println()
 	fmt.Println("2 opt done. loop = ", loop)
