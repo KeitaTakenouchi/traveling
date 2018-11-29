@@ -470,6 +470,26 @@ func exportSpanningTreePNG(spanningTreeEdges []*edge) {
 	ctx.SavePNG("data/img/spannning.png")
 }
 
+func twoOptAlgorithm(path *path) {
+	isChanged := true
+	for isChanged {
+		isChanged = false
+		for i := 1; i < path.count()-2; i++ {
+			for k := i + 1; k < path.count()-1; k++ {
+				a1 := *path.points[i-1]
+				a2 := *path.points[i]
+				b1 := *path.points[k]
+				b2 := *path.points[k+1]
+
+				if dist(a1, a2)+dist(b1, b2) > dist(a1, b1)+dist(a2, b2) {
+					path.swap(i, k)
+					isChanged = true
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	//rfile, err := os.Open("data/cities.csv")
 	rfile, err := os.Open("data/small.csv")
@@ -507,8 +527,10 @@ func main() {
 	exportSpanningTreePNG(edges)
 	fmt.Println("done spanning.")
 	path := spannningTreeTourAlgorithm(pool, edges)
-	dist := path.distance()
-	fmt.Printf("dist %f\n", dist)
+	fmt.Printf("dist %f\n", path.distance())
+
+	twoOptAlgorithm(path)
+	fmt.Printf("dist %f\n", path.distance())
 
 	writePathToFile(path)
 	exportPathPNG(path)
