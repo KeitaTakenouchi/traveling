@@ -243,6 +243,7 @@ func nearestNextAlgorithm(pool pointPool) *path {
 	ratio := 0.0
 
 	path := newPath()
+	path.setStart(pool.start)
 
 	currentPoint := pool.removeAt(0)
 	path.addPoint(currentPoint)
