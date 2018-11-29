@@ -190,14 +190,6 @@ func spannningTreeTourAlgorithm(pool pointPool, edges []*edge) *path {
 			return math.Atan2(a.y, a.x) < math.Atan2(b.y, b.x)
 		})
 		graph[pt] = connected
-		/*
-			// dump
-			fmt.Print(pt.id, " : ")
-			for _, c := range connected {
-				fmt.Print(c.id, ", ")
-			}
-			fmt.Println()
-		*/
 	}
 	tour := make([]*point, 0)
 
@@ -208,8 +200,6 @@ func spannningTreeTourAlgorithm(pool pointPool, edges []*edge) *path {
 	currentPt := nextOfStartPt
 	nextPt := nextPoint(startPt, currentPt, graph)
 	for !(currentPt == startPt && nextPt == nextOfStartPt) {
-		fmt.Println(currentPt.id, " -> ", nextPt.id)
-
 		tour = append(tour, currentPt)
 		tmp := nextPt
 		nextPt = nextPoint(currentPt, nextPt, graph)
