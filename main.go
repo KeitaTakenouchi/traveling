@@ -314,7 +314,7 @@ func exportTriangulationPNG(triangulation *delaunay.Triangulation) {
 	ctx.SavePNG("data/img/triangle.png")
 }
 
-func exportPathPNG(path *path) {
+func exportPathPNG(path *path, fileName string) {
 	maxX, maxY := 0.0, 0.0
 	for _, pt := range path.points {
 		if pt.x > maxX {
@@ -344,7 +344,7 @@ func exportPathPNG(path *path) {
 	ctx.SetLineWidth(2)
 	ctx.Stroke()
 
-	ctx.SavePNG("data/img/path.png")
+	ctx.SavePNG(fileName)
 }
 
 func writePathToFile(path *path) {
@@ -518,10 +518,11 @@ func main() {
 	fmt.Println("done spanning.")
 	path := spannningTreeTourAlgorithm(pool, edges)
 	fmt.Printf("dist %f\n", path.distance())
+	exportPathPNG(path, "data/img/path_before.png")
 
 	twoOptAlgorithm(path)
 	fmt.Printf("dist %f\n", path.distance())
 
 	writePathToFile(path)
-	exportPathPNG(path)
+	exportPathPNG(path, "data/img/path.png")
 }
