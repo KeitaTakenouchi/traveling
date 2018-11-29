@@ -462,6 +462,7 @@ func exportSpanningTreePNG(spanningTreeEdges []*edge) {
 }
 
 func twoOptAlgorithm(path *path) {
+	loop := 0
 	isChanged := true
 	for isChanged {
 		isChanged = false
@@ -478,7 +479,15 @@ func twoOptAlgorithm(path *path) {
 				}
 			}
 		}
+		loop++
+		if loop%20 == 0 {
+			fmt.Println("+")
+		} else {
+			fmt.Print("+")
+		}
 	}
+	fmt.Println()
+	fmt.Println("2 opt done. loop = ", loop)
 }
 
 func main() {
@@ -512,14 +521,16 @@ func main() {
 	}
 
 	// calculate a path.
-	//path := nearestNextAlgorithm(pool)
+	path := nearestNextAlgorithm(pool)
 
-	edges := spanningTree(pool)
-	exportSpanningTreePNG(edges)
-	fmt.Println("done spanning.")
-	path := spannningTreeTourAlgorithm(pool, edges)
+	/*
+		edges := spanningTree(pool)
+		exportSpanningTreePNG(edges)
+		fmt.Println("done spanning.")
+		path := spannningTreeTourAlgorithm(pool, edges)
+	*/
+
 	fmt.Printf("dist %f\n", path.distance())
-	exportPathPNG(path, "data/img/path_before.png")
 
 	twoOptAlgorithm(path)
 	fmt.Printf("dist %f\n", path.distance())
