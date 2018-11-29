@@ -99,3 +99,56 @@ func Test_isPrime(t *testing.T) {
 		})
 	}
 }
+
+func Test_path_twoOptSwap(t *testing.T) {
+
+	type args struct {
+		i int
+		k int
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{
+			args: args{
+				i: 1,
+				k: 3,
+			},
+			want: []int{0, 3, 2, 1, 4, 5},
+		},
+		{
+			args: args{
+				i: 2,
+				k: 4,
+			},
+			want: []int{0, 1, 4, 3, 2, 5},
+		},
+		{
+			args: args{
+				i: 1,
+				k: 4,
+			},
+			want: []int{0, 4, 3, 2, 1, 5},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := newPath()
+			p.addPoint(newPoint(0, 0, 0))
+			p.addPoint(newPoint(1, 0, 0))
+			p.addPoint(newPoint(2, 0, 0))
+			p.addPoint(newPoint(3, 0, 0))
+			p.addPoint(newPoint(4, 0, 0))
+			p.addPoint(newPoint(5, 0, 0))
+			p.swap(tt.args.i, tt.args.k)
+
+			for i, id := range tt.want {
+				if p.points[i].id != id {
+					t.Errorf("id = %v, want = %v", id, p.points[i].id)
+				}
+			}
+		})
+	}
+}

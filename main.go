@@ -69,6 +69,24 @@ func (p *path) distance() float64 {
 	return sum
 }
 
+func (p *path) swap(i, k int) {
+	if !(i <= k && i > 0 && k < p.count()-1) {
+		panic("Invalid index.")
+	}
+
+	ps := make([]*point, 0)
+	for j := 0; j < i; j++ {
+		ps = append(ps, p.points[j])
+	}
+	for j := k; j >= i; j-- {
+		ps = append(ps, p.points[j])
+	}
+	for j := k + 1; j < p.count(); j++ {
+		ps = append(ps, p.points[j])
+	}
+	p.points = ps
+}
+
 type pointPool struct {
 	points []*point
 	start  *point
@@ -491,7 +509,7 @@ func main() {
 	path := spannningTreeTourAlgorithm(pool, edges)
 	dist := path.distance()
 	fmt.Printf("dist %f\n", dist)
-	
+
 	writePathToFile(path)
 	exportPathPNG(path)
 }
