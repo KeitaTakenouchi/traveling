@@ -1,4 +1,4 @@
-package main
+package tsp
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 
 func Test_dist(t *testing.T) {
 	type args struct {
-		a point
-		b point
+		a Point
+		b Point
 	}
 	tests := []struct {
 		name string
@@ -16,22 +16,22 @@ func Test_dist(t *testing.T) {
 	}{
 		{
 			args: args{
-				a: point{x: 3, y: 2},
-				b: point{x: 3, y: 2},
+				a: Point{X: 3, Y: 2},
+				b: Point{X: 3, Y: 2},
 			},
 			want: 0,
 		},
 		{
 			args: args{
-				a: point{x: 0, y: 0},
-				b: point{x: 3, y: 4},
+				a: Point{X: 0, Y: 0},
+				b: Point{X: 3, Y: 4},
 			},
 			want: 5,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := dist(tt.args.a, tt.args.b); got != tt.want {
+			if got := Dist(tt.args.a, tt.args.b); got != tt.want {
 				t.Errorf("dist() = %v, want %v", got, tt.want)
 			}
 		})
@@ -42,25 +42,25 @@ func Test_path_distance(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		points []*point
+		points []*Point
 		want   float64
 	}{
 		{
-			points: []*point{},
+			points: []*Point{},
 			want:   0,
 		},
 		{
-			points: []*point{
-				newPoint(0, 0, 0),
+			points: []*Point{
+				NewPoint(0, 0, 0),
 			},
 			want: 0,
 		},
 		{
-			points: []*point{
-				newPoint(0, 0, 0),
-				newPoint(1, 1, 0),
-				newPoint(2, 1, 1),
-				newPoint(3, 0, 1),
+			points: []*Point{
+				NewPoint(0, 0, 0),
+				NewPoint(1, 1, 0),
+				NewPoint(2, 1, 1),
+				NewPoint(3, 0, 1),
 			},
 			want: 4,
 		},
@@ -68,11 +68,11 @@ func Test_path_distance(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &path{
-				points: tt.points,
+			p := &Path{
+				Points: tt.points,
 			}
-			if got := p.distance(); got != tt.want {
-				t.Errorf("path.distance() = %v, want %v", got, tt.want)
+			if got := p.Distance(); got != tt.want {
+				t.Errorf("path.Distance() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -93,7 +93,7 @@ func Test_isPrime(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isPrime(tt.n); got != tt.want {
+			if got := IsPrime(tt.n); got != tt.want {
 				t.Errorf("isPrime() = %v, want %v", got, tt.want)
 			}
 		})
@@ -135,18 +135,18 @@ func Test_path_twoOptSwap(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := newPath()
-			p.addPoint(newPoint(0, 0, 0))
-			p.addPoint(newPoint(1, 0, 0))
-			p.addPoint(newPoint(2, 0, 0))
-			p.addPoint(newPoint(3, 0, 0))
-			p.addPoint(newPoint(4, 0, 0))
-			p.addPoint(newPoint(5, 0, 0))
-			p.swap(tt.args.i, tt.args.k)
+			p := NewPath()
+			p.AddPoint(NewPoint(0, 0, 0))
+			p.AddPoint(NewPoint(1, 0, 0))
+			p.AddPoint(NewPoint(2, 0, 0))
+			p.AddPoint(NewPoint(3, 0, 0))
+			p.AddPoint(NewPoint(4, 0, 0))
+			p.AddPoint(NewPoint(5, 0, 0))
+			p.Swap(tt.args.i, tt.args.k)
 
 			for i, id := range tt.want {
-				if p.points[i].id != id {
-					t.Errorf("id = %v, want = %v", id, p.points[i].id)
+				if p.Points[i].ID != id {
+					t.Errorf("id = %v, want = %v", id, p.Points[i].ID)
 				}
 			}
 		})
