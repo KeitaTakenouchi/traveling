@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	"github.com/KeitaTakenouchi/traveling/tsp"
 	"io"
 	"os"
 	"strconv"
+
+	"github.com/KeitaTakenouchi/traveling/tsp"
 )
 
 func twoOptAlgorithm(path *tsp.Path) {

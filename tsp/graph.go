@@ -3,9 +3,10 @@ package tsp
 import (
 	"bufio"
 	"fmt"
-	"github.com/fogleman/gg"
 	"math"
 	"os"
+
+	"github.com/fogleman/gg"
 )
 
 type Point struct {

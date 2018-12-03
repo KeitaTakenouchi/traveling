@@ -2,10 +2,11 @@ package tsp
 
 import (
 	"fmt"
-	"github.com/fogleman/delaunay"
-	"github.com/fogleman/gg"
 	"math"
 	"sort"
+
+	"github.com/fogleman/delaunay"
+	"github.com/fogleman/gg"
 )
 
 // Algorithm using minimun spannning tree and creatint a tour on it.
