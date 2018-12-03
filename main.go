@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	"github.com/KeitaTakenouchi/traveling/tsp"
 	"io"
 	"os"
 	"strconv"
+
+	"github.com/KeitaTakenouchi/traveling/tsp"
 )
 
 func main() {
@@ -43,8 +44,6 @@ func main() {
 	// calculate a path.
 	//path := tsp.NearestNextAlgorithm(pool)
 
-	edges := spanningTree(pool)
-	fmt.Println("done spanning.")
 	path := tsp.SpannningTreeTourAlgorithm(pool)
 
 	fmt.Printf("dist %f\n", path.Distance())
