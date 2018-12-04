@@ -210,9 +210,10 @@ func WritePathToFile(path *Path, filePath string) {
 	buf := bufio.NewWriter(wfile)
 	buf.WriteString("Path\n")
 	for _, pt := range path.Points {
-		line := fmt.Sprintf("%d\n", pt.ID)
+		line := fmt.Sprintf("%d,%f,%f\n", pt.ID, pt.X, pt.Y)
 		buf.WriteString(line)
 	}
-	buf.WriteString("0\n")
+	line := fmt.Sprintf("%d,%f,%f\n", path.Start.ID, path.Start.X, path.Start.Y)
+	buf.WriteString(line)
 	buf.Flush()
 }

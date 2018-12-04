@@ -31,7 +31,7 @@ func twoOptAlgorithm(path *tsp.Path) {
 		}
 		loop++
 		fmt.Printf("Dist %f\n", path.Distance())
-		tsp.WritePathToFile(path, "data/result.csv")
+		tsp.WritePathToFile(path, "data/result_2opt.csv")
 	}
 	fmt.Println()
 	fmt.Println("2 opt done. loop = ", loop)
@@ -39,21 +39,23 @@ func twoOptAlgorithm(path *tsp.Path) {
 
 func main() {
 	//rfile, err := os.Open("data/cities.csv")
-	rfile, err := os.Open("data/small.csv")
+	rfile, err := os.Open("data/result.csv")
 	defer rfile.Close()
 	if err != nil {
 		panic("file not found.")
 	}
 	reader := csv.NewReader(bufio.NewReader(rfile))
 
-	// read Points as pool from a file.
-	pool := tsp.NewPointPool()
+	// read Path from a file.
+	path := tsp.NewPath()
 	for i := 0; ; i++ {
 		line, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
-
+		if len(line) != 3 {
+			continue
+		}
 		id, e0 := strconv.Atoi(line[0])
 		x, e1 := strconv.ParseFloat(line[1], 64)
 		y, e2 := strconv.ParseFloat(line[2], 64)
@@ -61,10 +63,13 @@ func main() {
 			continue
 		}
 		pt := tsp.NewPoint(id, x, y)
-		pool.AddPoint(pt)
+		path.AddPoint(pt)
 		if pt.ID == 0 {
-			pool.SetStart(pt)
+			path.SetStart(pt)
 		}
 	}
 
+	twoOptAlgorithm(path)
+	tsp.WritePathToFile(path, "data/result_2opt.csv")
+	tsp.ExportPathPNG(path, "data/img/path_2opt.png")
 }
