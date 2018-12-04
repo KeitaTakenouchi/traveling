@@ -16,7 +16,7 @@ func main() {
 	rfile, err := os.Open("data/small.csv")
 	defer rfile.Close()
 	if err != nil {
-		panic("fine not found.")
+		panic("file not found.")
 	}
 	reader := csv.NewReader(bufio.NewReader(rfile))
 
