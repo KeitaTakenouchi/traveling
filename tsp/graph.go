@@ -66,8 +66,9 @@ func (p *Path) Distance() float64 {
 }
 
 func (p *Path) Swap(i, k int) {
-	if !(i <= k && i > 0 && k < p.Count()-1) {
-		panic("Invalid index.")
+	if !(i <= k && k < p.Count()-1) {
+		str := fmt.Sprintf("Invalid index. i=%d, k=%d", i, k)
+		panic(str)
 	}
 
 	ps := make([]*Point, 0)
