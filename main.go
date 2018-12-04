@@ -44,7 +44,9 @@ func main() {
 	// calculate a path.
 	//path := tsp.NearestNextAlgorithm(pool)
 
-	path := tsp.SpannningTreeTourAlgorithm(pool)
+	//path := tsp.SpannningTreeTourAlgorithm(pool)
+
+	path := tsp.AnnealingAlgorithm(pool)
 
 	fmt.Printf("dist %f\n", path.Distance())
 
