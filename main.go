@@ -48,6 +48,6 @@ func main() {
 
 	fmt.Printf("dist %f\n", path.Distance())
 
-	tsp.WritePathToFile(path)
+	tsp.WritePathToFile(path, "data/result.csv")
 	tsp.ExportPathPNG(path, "data/img/path.png")
 }

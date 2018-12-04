@@ -31,7 +31,7 @@ func twoOptAlgorithm(path *tsp.Path) {
 		}
 		loop++
 		fmt.Printf("Dist %f\n", path.Distance())
-		tsp.WritePathToFile(path)
+		tsp.WritePathToFile(path, "data/result.csv")
 	}
 	fmt.Println()
 	fmt.Println("2 opt done. loop = ", loop)

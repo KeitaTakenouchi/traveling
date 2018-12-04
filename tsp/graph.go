@@ -200,8 +200,8 @@ func ExportPathPNG(path *Path, fileName string) {
 	ctx.SavePNG(fileName)
 }
 
-func WritePathToFile(path *Path) {
-	wfile, err := os.Create("data/result.csv")
+func WritePathToFile(path *Path, filePath string) {
+	wfile, err := os.Create(filePath)
 	defer wfile.Close()
 	if err != nil {
 		panic("file creation err.")
