@@ -65,23 +65,16 @@ func (p *Path) Distance() float64 {
 	return sum
 }
 
-func (p *Path) Swap(i, k int) {
-	if !(i <= k && k < p.Count()-1) {
-		str := fmt.Sprintf("Invalid index. i=%d, k=%d", i, k)
+func (p *Path) Swap(from, to int) {
+	if !(from <= to && to < p.Count()-1) {
+		str := fmt.Sprintf("Invalid index. i=%d, k=%d", from, to)
 		panic(str)
 	}
 
-	ps := make([]*Point, 0)
-	for j := 0; j < i; j++ {
-		ps = append(ps, p.Points[j])
+	for i := 0; from+i <= (from+to)/2; i++ {
+		p.Points[from+i], p.Points[to-i] = p.Points[to-i], p.Points[from+i]
 	}
-	for j := k; j >= i; j-- {
-		ps = append(ps, p.Points[j])
-	}
-	for j := k + 1; j < p.Count(); j++ {
-		ps = append(ps, p.Points[j])
-	}
-	p.Points = ps
+
 }
 
 type PointPool struct {
