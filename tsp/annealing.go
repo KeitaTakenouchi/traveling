@@ -24,52 +24,62 @@ func AnnealingAlgorithm(pool PointPool) *Path {
 	}
 	initState.AddPoint(pool.Start)
 
+	adjustmentValue := initState.Distance()
+
+	//start := time.Now().UTC().Unix()
+
+	fmt.Println("start")
 	currentState := initState
-	ratio := 0.0
+	ratio := 0
 	for i := 1; i <= loopLimit; i++ {
-		r := math.Floor(float64(i) / float64(loopLimit) * 100)
+		/*
+			if i == 100 {
+				now := time.Now().UTC().Unix()
+				fmt.Printf("DONE : i=%d,  %d sec\n", i, now-start)
+				break
+			}
+		*/
+		r := int(math.Floor(float64(i) / float64(loopLimit) * 1000))
 		if ratio != r {
 			ratio = r
-			fmt.Printf("*")
+			if (r % 100) == 0 {
+				fmt.Printf("*\n")
+				fmt.Printf("DIST : %f\n", currentState.Distance())
+			} else {
+				adjustmentValue = currentState.Distance()
+				fmt.Printf("*")
+			}
+
+			//WritePathToFile(currentState, "data/result_annealing.csv")
 		}
 
-		temp := temperature(float64(i) / float64(loopLimit))
-		nextState := neighbour(currentState)
+		temp := maxTemperature * (1.0 - (float64(i) / float64(loopLimit)))
 
-		if probability(currentState, nextState, temp) > rand.Float64() {
-			currentState = nextState
-			//fmt.Printf("[%d]\t temp=%f\t, Dist=%f\n", i, temp, currentState.Distance())
+		// create a next candidate.
+		nextState := NewPath()
+		nextState.SetStart(currentState.Start)
+		for _, pt := range currentState.Points {
+			nextState.AddPoint(pt)
+		}
+
+		i := rand.Intn(len(currentState.Points) - 2)
+		k := rand.Intn(len(currentState.Points) - 2 - i)
+
+		a1 := *currentState.Points[i]
+		a2 := *currentState.Points[i+1]
+		b1 := *currentState.Points[i+1+k]
+		b2 := *currentState.Points[i+2+k]
+
+		before := Dist(a1, a2) + Dist(b1, b2) + adjustmentValue
+		after := Dist(a1, b1) + Dist(a2, b2) + adjustmentValue
+		if after < before {
+			// probability = 1
+			currentState.Swap(i+1, i+1+k)
+		} else if math.Exp((before-after)/temp) > rand.Float64() {
+			currentState.Swap(i+1, i+1+k)
 		}
 	}
+	fmt.Println()
 
 	return currentState
-}
-
-func temperature(ratio float64) float64 {
-	return maxTemperature * (1.0 - ratio)
-}
-
-func neighbour(state *Path) *Path {
-	next := NewPath()
-	next.SetStart(state.Start)
-	for _, pt := range state.Points {
-		next.AddPoint(pt)
-	}
-
-	r1 := rand.Intn(len(state.Points) - 2)
-	r2 := rand.Intn(len(state.Points) - 2 - r1)
-	next.Swap(r1+1, r1+1+r2) // node 0 is fixed.
-	return next
-}
-
-func probability(currentState, nextState *Path, temperature float64) float64 {
-	if energy(currentState) > energy(nextState) {
-		return 1.0
-	}
-	value := math.Exp((energy(currentState) - energy(nextState)) / temperature)
-	return value
-}
-
-func energy(state *Path) float64 {
-	return state.Distance()
 }
